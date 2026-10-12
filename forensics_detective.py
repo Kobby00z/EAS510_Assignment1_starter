@@ -81,11 +81,13 @@ class SimpleDetector:
         results = self.evaluate(input_path)
         best = max(results, key=lambda r: r["confidence"])
         histogram_score = next ((ev["metric"] for ev in best["evidence"] if ev["rule"] == 2), 0.0)
+        metadata_score = next((ev["score"] for ev in best["evidence"] if ev["rule"] ==1), 0)
+        template_score = next((ev["score"] for ev in best["evidence"] if ev["rule"] ==3), 0)
         verdict = {
             "input": os.path.basename(input_path),
             "evidence": best["evidence"],
             "confidence": best["confidence"],
-            "rejected": best["confidence"] < MATCH_THRESHOLD or histogram_score < 0.1,
+            "rejected": best["confidence"] < MATCH_THRESHOLD or (histogram_score < 0.1 and not (metadata_score >= 29 and template_score >= 39)),
         }
         verdict["target"] = None if verdict["rejected"] else best["target"]
         return verdict

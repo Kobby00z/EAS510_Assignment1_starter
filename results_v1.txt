@@ -380,7 +380,7 @@ Processing: random_08.jpg
 Rule 1 (Metadata): FIRED - Size ratio 0.66 -> 20/30 points
 Rule 2 (Histogram): NO MATCH - Correlation 0.00 -> 0/30 points
 Rule 3 (Template): FIRED - Match score 0.93 -> 37/40 points
-Final Score: 57/100 -> MATCH to original_09
+Final Score: 57/100 -> REJECTED
 
 Processing: random_09.jpg
 Rule 1 (Metadata): FIRED - Size ratio 0.85 -> 25/30 points
@@ -410,7 +410,7 @@ Processing: random_13.jpg
 Rule 1 (Metadata): FIRED - Size ratio 0.77 -> 23/30 points
 Rule 2 (Histogram): NO MATCH - Correlation 0.00 -> 0/30 points
 Rule 3 (Template): FIRED - Match score 0.77 -> 31/40 points
-Final Score: 54/100 -> MATCH to original_09
+Final Score: 54/100 -> REJECTED
 
 Processing: random_14.jpg
 Rule 1 (Metadata): FIRED - Size ratio 0.73 -> 22/30 points
