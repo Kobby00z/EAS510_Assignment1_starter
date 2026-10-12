@@ -136,7 +136,7 @@ def rule3_template(target, input_path):
                                      min(nd_g.shape[0], src_g.shape[0])))
         best_match = 0.0
 
-        for scale in [0.5,0.75,1.0]:
+        for scale in [0.25,0.5,0.75,1.0]:
             width = int(nd_g.shape[1] * scale)
             height = int(nd_g.shape[0] * scale)
 
