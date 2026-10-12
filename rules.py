@@ -134,13 +134,25 @@ def rule3_template(target, input_path):
         if (src_g.shape[0] < nd_g.shape[0]) or (src_g.shape[1] < nd_g.shape[1]):
             nd_g = cv2.resize(nd_g, (min(nd_g.shape[1], src_g.shape[1]),
                                      min(nd_g.shape[0], src_g.shape[0])))
-        res = cv2.matchTemplate(src_g, nd_g, cv2.TM_CCOEFF_NORMED)
-        metric = float(res.max())
+        best_match = 0.0
+
+        for scale in [0.5,0.75,1.0]:
+            width = int(nd_g.shape[1] * scale)
+            height = int(nd_g.shape[0] * scale)
+
+            if width > src_g.shape[1] or height > src_g.shape[0]:
+                continue
+
+            resized = cv2.resize(nd_g, (width,height))
+            res = cv2.matchTemplate(src_g, resized, cv2.TM_CCOEFF_NORMED)
+            match_score = float(res.max())
+            best_match = max(best_match, match_score)
+        metric = best_match 
         out["metric"] = round(max(0.0, min(1.0, metric)), 3)
         out["note"] = f"Match score {out['metric']:.2f}"
         if out["metric"] >= 0.4:
             out["fired"] = True
             out["score"] = int(round(out["out_of"] * out["metric"]))
     except Exception:
-        pass
+        raise
     return out
