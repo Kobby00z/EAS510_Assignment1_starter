@@ -85,3 +85,15 @@ restart never touches GitHub.
 ## License
 
 Apache 2.0. See `LICENSE`.
+
+## Observed weakness in V1: what failed and why
+One problem was that the detector couldn't recognize images when too many changes were made to them at the same time. For example with rule 1, changes to the image's dimension makes it immediately harder to recognize. With rule 2, any change to brightness or contrast can cause differences even though it's the same original picture. The template matching rule also makes it harder to find a strong pattern to match when there's a crop to the image. An example would be the image original_02__crop_keep70__bright__compress__q40__v2.jpg. The filename says it was cropped to keep 70% of the image then made brighter and compressed. It was rejected because Rule 2 and Rule 3 failed to find strong matches even though rule 1 gave a high score of 29/30. To my naked eye the dimensions look similar enough to explain why Rule 1 returned a high score. The cropping removed the darker ground and people, leaving mainly the red building which changed the distribution of colors and where visual features appeared
+
+## Design decision for V2: what Rule 4 is and why you chose it
+Rule 4 is edge detection which was supposed to read the outlines of the images to see how similar they are. I chose this because changing brightness or contrast can affect the colors without affecting the outline of an image. I was hoping that rule 4 would spot some images that rule 2 could not.
+
+## Effect of the change: accuracy before/after on easy vs hard
+V1 accepted 58 out of 60 easy images as matches and 48 out of 60 hard images as matches. V2 accepted 56 out of 60 easy images as matches and 39 out of 60 hard images as matches. Both rejected all the random images. V2 performed worse than V1 especially on the hard images
+
+## Trade-offs: what new costs or risks did Rule 4 introduce
+The main cost of Rule 4 for me was the processing time as it took over thirty minutes to compare the edges.  V2 also showed fewer matches with the hard images than V1. Another potential problem is that an image being cropped may shift the outline or even make it disappear entirely which would render the rule less reliable than we would ideally want. An example for that is the same original_02__crop_keep70__bright__compress__q40__v2.jpg image which performed worse with V2 since it was cropped with some edges shifted and others disappeared.  With V1, it scored 29/100 and with V2, 24/100.  Rule 4 was 0/10.

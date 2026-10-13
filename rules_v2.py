@@ -12,9 +12,23 @@ Rule 4 -> 10 (or trim the losers more aggressively).
 """
 
 import rules
+import cv2
+
+def rule1_metadata(target,input_path):
+    result = rules.rule1_metadata(target,input_path)
+    result["out_of"] = 25
+    result["score"] = round(result["score"] * 25 /30)
+    return result 
+
+def rule2_histogram(target, input_path):
+    result = rules.rule2_histogram(target, input_path)
+    result["out_of"] = 25
+    result["score"] = round(result["score"] * 25 / 30)
+    return result
+
 
 #: Import the original rules and append your new one.
-RULES = rules.RULES + ("rule4_edges",)
+RULES = (rule1_metadata, rule2_histogram,rules.rule3_template, "rule4_edges")
 
 
 def rule4_edges(target, input_path):
@@ -23,12 +37,22 @@ def rule4_edges(target, input_path):
     Starter returns a no-op so the pipeline still runs before you implement it.
     Parity with rules.py rule dict: rule/name/fired/score/out_of/note/metric.
     """
+    original = cv2.imread(target["path"],cv2.IMREAD_GRAYSCALE)
+    suspect = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
+    original_edges = cv2.Canny(original, 100, 200)
+    suspect_edges = cv2.Canny(suspect, 100, 200)
+    height, width = original_edges.shape
+    suspect_edges = cv2.resize(suspect_edges, (width, height))
+    comparison = cv2.matchTemplate(original_edges, suspect_edges, cv2.TM_CCOEFF_NORMED)
+    similarity = float(comparison.max())
+    similarity = max(0.0, min(1.0, similarity))
+    matched = similarity >= 0.4
     return {
         "rule": 4,
         "name": "Edges",
-        "fired": False,
-        "score": 0,
+        "fired": matched,
+        "score": round(10 * similarity) if matched else 0,
         "out_of": 10,
-        "note": "Not implemented",
-        "metric": 0.0,
+        "note": f"Edge similarity {similarity:.2f}",
+        "metric": round(similarity, 3),
     }
